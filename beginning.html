@@ -1,0 +1,681 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+  <title>MOP: Beginning</title>
+  <link rel="stylesheet" href="default.css" type="text/css"/>
+  <link rel="stylesheet" type="text/css" href="niftyCorners.css" />
+  <link rel="stylesheet" type="text/css" href="niftyPrint.css" media="print" />
+  <script type="text/javascript" src="niftycube.js"></script>
+  <script type="text/javascript" src="layout.js"></script>
+</head>
+<body>
+  <div id="left_container">
+    <div id="logo_container">
+      <a href="index.html"><img id="logo" width="155" height="80" src="logo.png"/></a>
+    </div>
+    <div id="menu_container">
+      <div class="menu_section">
+        <h1 class="menu_title">Welcome</h1>
+          <p class="menu_item"><a href="index.html">iMatix MOP</a></p>
+          <p class="menu_item"><a href="introduction.html">Introduction</a></p>
+          <p class="menu_curr"><a href="beginning.html">Beginning</a></p>
+      </div>
+    </div>
+    <div id="copyright">
+      <copyright>
+    Layout and content copyright &copy; 2006 iMatix Corporation.
+    </copyright>
+    </div>
+  </div>
+
+  <div id="right_container">
+    <div id="title_container">
+      <h1 id="title">Beginning</h1>
+      <h2 id="title">Beginning with Models</h2>
+    </div>
+    <div id="content_container">
+
+    <!-- Page content -->
+    <content><h1>Contents</h1><ol><li><a href="#A1">Beginnings</a></li><li><a href="#A2">Modeling a Web Site</a></li><li><a href="#A3">First Draft of The Web Site Generator</a></li><li><a href="#A4">Inserting Variables into Output</a></li><li><a href="#A5">Iterating Through the XML Tree</a></li><li><a href="#A6">Building the Web Pages</a></li><li><a href="#A7">Putting it All Together</a></li><li><a href="#A8">Exercise for the Reader</a></li><li><a href="#A9">Extending the Model</a></li><li><a href="#A10">Conclusion</a></li></ol><h1><a name="A1">1. Beginnings</a></h1><p>This is the second in a series of articles, aimed at the professional
+programmer. In my last article I introduced &quot;Model-Oriented
+Programming&quot;, or MOP, and touched the subject of code generation.
+</p><p>In this article we will construct a simple modeling language that
+produces web sites. The goal is to generate the HTML for certain types
+of web site very rapidly, from a simple high-level description. You will
+learn how to write a simple code generator using the GSL scripting
+language.
+</p><p>You will need about one day to understand and start using these
+techniques in your own projects.
+</p><p>If you did not catch the first article in this series, you will want to
+read it before starting this one.
+</p><h1><a name="A2">2. Modeling a Web Site</a></h1><p>I'm going to propose a simple abstract model for a web site, as an
+example. When you understand this example, you'll have a much better
+idea of how we design new models, so that you can design your own.
+</p><p>To start with, I'll explain how I design a new model, and then I'll take
+you through the steps of building a code generator that brings it to
+life.
+</p><p>Our model lets us build simple web sites. A web site is a mixture of
+different types of document, for instance:
+</p><ul><li>
+HTML pages for the content.</li><li>
+JavaScript for menus.</li><li>
+CSS style sheets for look and feel.</li><li>
+Images for icons and for cosmetics.</li></ul><p>And so on. When we make a new model, it's worth asking the question,
+&quot;how would I make a thousand of these?&quot; I.E., a thousand web sites.
+Well, we'd have lots of content, which would be different for each web
+site, possibly with some common parts. The content could definitely be
+based on standard templates - it's unlikely we'd make each of a thousand
+sites entirely from scratch.
+</p><p>If we used JavaScript menus, we'd presumably use the same code in each
+site, changing only the menu content to match the structure of the site.
+</p><p>Most likely we'd use a unique CSS stylesheet for each site, to give each
+site a unique look and feel, but they could also be based on a standard
+template.
+</p><p>Finally, the images and icons would be a mixture of standard graphics
+and customised graphics, depending on how pretty we want each site to
+look.
+</p><p>Our model is going to be the basis for code generation, that is, the
+mass production of as much of the above as is reasonable. To do this, we
+need to make a compact and efficient statement of exactly what is needed
+to produce each web site.
+</p><p>It's like constructing a thousand houses. It's expensive to design and
+build each house as a unique thing. It's much cheaper to make a single
+common plan, and then for each house, state the differences. So one
+house might have a different roof shape, while another has larger
+windows, but all houses share the same materials, wall and floor
+construction, and so on.
+</p><p>When we mass produce something, we're clearly aiming for low cost and
+consistent , and hopefully high, quality. It's the same with code
+generation. So, let's get to our web site model. What information do we
+actually need to specify?
+</p><ul><li>
+First, we need to know all the pages in the web site, so that we can build menus.</li><li>
+Second, we need basic information for each page. Typically, I like to define a title and subtitle, an image (for pretty marketing purposes), and a block of content (which can be raw HTML).</li><li>
+Third, we some information for all pages - for example, a logo and a copyright statement.</li></ul><p>The next step is to sketch a model that can hold this information in a
+useful way. Remember that we use XML as a modeling language. So, we
+invent an XML syntax for our model. For each page, I'd like to write
+something like this:
+</p><pre>
+&lt;page
+    name = &quot;name of page&quot;
+    title = &quot;Title text goes here&quot;
+    subtitle = &quot;Subtitle text goes here&quot;
+    &gt;
+&lt;content&gt;
+Content HTML goes here
+&lt;/content&gt;
+&lt;/page&gt;
+</pre><p>When I design new XML languages like the above, I use entity attributes
+to hold single-line properties, and child entities to hold multi-line
+properties or properties that can occur more than once. It just seems
+more elegant than putting properties in child entities, since this
+implies those properties can occur many times. It does not make sense
+for a page to have more than one name, title, subtitle, or image in our
+model, so we define these as attributes of the page entity. The iMatix
+MOP tools use this style very heavily.
+</p><p>Once we've defined a set of pages, how do we tie these together into a
+web site? Let's use a second model for the overall web site:
+</p><pre>
+&lt;site copyright = &quot;copyright statement goes here&quot;&gt;
+&lt;section name = &quot;name of section&quot;&gt;
+    &lt;page name = &quot;name of page&quot; /&gt; ...
+&lt;/section&gt;...
+&lt;/site&gt;
+</pre><p>I've defined a &lt;section&gt; tag that breaks the pages into groups. Now
+let's jump right in and make ourselves a web site. There's no better way
+to test a model than to try using it. As an example, I'll make a new web
+site for my local grocer, who has decided, finally, to go on-line.
+</p><h1><a name="A3">3. First Draft of The Web Site Generator</a></h1><p>We'll make the web site as several XML files. This is a design choice.
+We could also make the site as a single large XML file. It's a trade-off
+between ease of use (a single file is easier in smaller cases) and
+scalability (it's not practical to edit a large site with hundreds of
+pages as a single file).
+</p><p>To start with, we'll define the overall site like this:
+</p><pre>
+&lt;?xml version = &quot;1.0&quot; ?&gt;
+&lt;site
+    copyright = &quot;Copyright &amp;#169; Local Grocer&quot;
+    script = &quot;sitegen_1.gsl&quot;
+    &gt;
+&lt;section name = &quot;Welcome&quot;&gt;
+    &lt;page name = &quot;index&quot; /&gt;
+&lt;/section&gt;
+&lt;section name = &quot;Products&quot;&gt;
+    &lt;page name = &quot;fruit&quot; /&gt;
+    &lt;page name = &quot;vegetables&quot; /&gt;
+&lt;/section&gt;
+&lt;/site&gt;
+</pre><p>Note the first line, which defines the file as XML, and the 'script'
+tag, which tells GSL what script to run to process the data. We've
+defined three pages. Let's write very a simple version of each of these:
+</p><p>Next, we will write three more short XML files as shown below. First
+the index page:
+</p><pre>
+&lt;page
+    name = &quot;index&quot;
+    title = &quot;Local Grocer&quot;
+    subtitle = &quot;Visit the Local Grocer&quot;
+    &gt;
+&lt;content&gt;
+&lt;h3&gt;Close to you&lt;/h3&gt;
+&lt;p&gt;We're just around the corner, if you live near by.&lt;/p&gt;
+&lt;h3&gt;Always open&lt;/h3&gt;
+&lt;p&gt;And if we're closed, just come back tomorrow.&lt;/p&gt;
+&lt;h3&gt;Cheap and convenient&lt;/h3&gt;
+&lt;p&gt;Much cheaper and easier than growing your own vegetables and fruit.&lt;/p&gt;
+&lt;/content&gt;
+&lt;/page&gt;
+</pre><p>Next, the fruit page:
+</p><pre>
+&lt;page
+    name = &quot;fruit&quot;
+    title = &quot;Our Fruit Stand&quot;
+    subtitle = &quot;Lucious Tropical Fruits&quot;
+    &gt;
+&lt;content&gt;
+&lt;h3&gt;Always fresh&lt;/h3&gt;
+&lt;p&gt;Just like it was plucked from the tree last month.&lt;/p&gt;
+&lt;h3&gt;Special deal&lt;/h3&gt;
+&lt;p&gt;Any five pieces of fruit, for the price of ten!&lt;/p&gt;
+&lt;h3&gt;Money back if not satisfied&lt;/h3&gt;
+&lt;p&gt;We'll give you your money back if we're not satisfied with it!&lt;/p&gt;
+&lt;/content&gt;
+&lt;/page&gt;
+</pre><p>and last the vegetable page:
+</p><pre>
+&lt;page
+    name = &quot;vegetables&quot;
+    title = &quot;Our Vegetables&quot;
+    subtitle = &quot;Healthy Organic Vegetables&quot;
+&gt;
+&lt;content&gt;
+&lt;h3&gt;100% organic vegetables&lt;/h3&gt;
+&lt;p&gt;All vegetables made from cardon, oxygen, and hydrogen molecules
+with trace elements.&lt;/p&gt;
+&lt;h3&gt;Country fresh style&lt;/h3&gt;
+&lt;p&gt;We don't know what that means, but it sounded nice!&lt;/p&gt;
+&lt;h3&gt;Unique take-away concept&lt;/h3&gt;
+&lt;p&gt;Now you can consume your vegetables in the comfort of your own home.&lt;/p&gt;
+&lt;/content&gt;
+&lt;/page&gt;
+</pre><p>Finally, here is the first draft of the web generation script. It does
+not produce anything, it simply loads the web site data into an XML tree
+and then saves this (in a file called root.xml) that we can look at to
+see what live data the script is actually working with:
+</p><pre>
+.#  Since we run the script off the XML file, it starts in
+.#  template mode.
+.template 0
+ for section
+    for page
+        #  Load XML &lt;page&gt; data
+        xml to section from &quot;$(page.name).xml&quot;
+        #  Delete old &lt;page&gt; tag
+        delete page
+    endfor
+ endfor
+ save root
+.endtemplate
+</pre><p>Let's look at what this script does. First, it switches off template
+mode so we can write ordinary GSL without starting each line with a dot.
+GSL starts scripts in template mode if they are launched from the XML
+file. It's useful in many cases but not here. So, we wrap the whole
+script in '.template 0' and '.endtemplate'.
+</p><p>Second, the script works through each section and page, and loads the
+XML data for that page. It does this using two commands, 'xml' and
+'delete'. The first loads XML data from a file into the specified scope
+(&lt;section&gt;, in this case), and the second deletes the current page
+(since the loaded data also contains a &lt;page&gt; tag).
+</p><p>Finally, the script saves the whole XML tree to a file. If you want to
+try the next steps you must have installed GSL, as I described in the
+last article. Run the script like this:
+</p><pre>
+gsl site
+</pre><p>GSL looks for the file called 'site.xml'. When the script has run, take
+a look at root.xml. This shows you what we're going to work with to
+generate the real HTML.
+</p><h1><a name="A4">4. Inserting Variables into Output</a></h1><p>When we generate output, we insert variable values into the generated
+text. This is very much like using shell variables.
+</p><p>GSL does automatic case conversion on output variable. This is very
+useful when we generate programming languages. For example, the $(name)
+form outputs a variable in lower case:
+</p><pre>
+output &quot;$(filename).c&quot;
+</pre><p>The $(NAME) form outputs the same value in uppercase:
+</p><pre>
+#if defined ($(FILENAME)_INCLUDED)
+</pre><p>And the $(Name) form outputs the variable in 'title' case, i.e. the
+first letter is capitalised:
+</p><pre>
+#################  $(Filename)   #################
+</pre><p>One side-effect of automatic case conversion is that we'll often get
+variables converted to lower case simply because we used the $(name)
+form. If we don't want a variable to be automatically case converted, we
+use this form: $(name:). This is also called the 'empty modifier'.
+</p><p>A second side-effect of automatic case conversion is that variable names
+are not case sensitive. By default GSL ignores the case of variable
+names so that $(me) and $(ME) refer to the same variable.
+</p><p>But putting empty modifiers in every variable expansion gets tiresome,
+and GSL lets us switch off automatic case conversion, using this
+instruction:
+</p><pre>
+ignorecase = 0
+</pre><p>This tells GSL, &quot;variable names are case-sensitive, and do not convert
+variable values on output&quot;.
+</p><h1><a name="A5">5. Iterating Through the XML Tree</a></h1><p>In our first draft we loaded each page into the XML tree and deleted the
+original page definition. That was this text:
+</p><pre>
+for section
+    for page
+        xml to section from &quot;$(page.name).xml&quot;
+        delete page
+    endfor
+endfor
+</pre><p>To generate output for each page, we're going to iterate through the
+sections one more time. Since we're deleting old &lt;page&gt; entities and
+loading new ones from the XML definitions, we need to iterate through
+the sections and pages over again. This is the code that generates the
+output for each page:
+</p><pre>
+for section
+    for page
+        include &quot;template.gsl&quot;
+    endfor
+endfor
+</pre><p>The include command executes GSL code in another file. We're going to do
+all the hard work in a separate file, which I've called template.gsl, so
+that it's easy to change the HTML generation independently from the
+top-level GSL code. This is good practice for several reasons:
+</p><p>It's nice, in larger projects, that each big code generation task sits
+in its own file where it can be owned by a single person.
+</p><p>We can add more templates - to produce other types of output - for the
+same model very easily and safely.
+</p><p>And you'll see in later examples that we tend to write a single GSL file
+for each output we want to produce. In XNF - the tool we use for
+larger-scale code generation projects - these scripts are called
+&quot;targets&quot;.
+</p><h1><a name="A6">6. Building the Web Pages</a></h1><p>The HTML template looks like this:
+</p><pre>
+.template 1
+.echo &quot;Generating $(page.name) page...&quot;
+.output &quot;$(page.name).html&quot;
+&lt;!DOCTYPE...&gt;
+&lt;html&gt;
+   ...
+&lt;/html&gt;
+.endtemplate
+</pre><p>Most of it is fairly straight-forward, though you do need to understand
+how XHTML and CSS work (and I'm not going to explain that here).
+</p><ul><li>
+The echo command tells the user what's going on. It's polite to do this, although in realistic cases we'll also let the user suppress such reports using a 'quiet' option.</li><li>
+The output command creates the HTML page.</li><li>
+The text &lt;!DOCTYPE...&gt; to &lt;/html&gt; is the body of the page, which I'll explain below.</li></ul><p>The template starts by setting template mode on. This means that any GSL
+commands we want to use here must start with a dot. It makes the HTML
+very easy to read and to maintain.
+</p><p>Let's look at the chunk of code that produces the site index. This is -
+in our version of the web site generator - a menu that is embedded into
+each page. The CSS stylesheet can place this menu anywhere on the page.
+Here is the GSL code that generates it:
+</p><pre>
+.for site.section
+&lt;h3 class=&quot;menu_heading&quot;&gt;$(section.name)&lt;/h3&gt;
+&lt;ul class=&quot;menu_item&quot;&gt;
+.   for page
+&lt;li&gt;&lt;a class=&quot;menu_item&quot;
+    href=&quot;$(page.name).html&quot;&gt;$(page.title)&lt;/a&gt;&lt;/li&gt;
+.   endfor
+&lt;/ul&gt;
+.endfor
+</pre><p>The interesting thing here is that we say for site.section in order to
+iterate through the sections. The site. prefix is a parent scope name,
+it tells GSL &quot;look for all sections in the current site&quot;. If we don't
+use the scope name, GSL would look for all sections in the current scope
+(the page) and find nothing. This is a common beginner's error.
+</p><p>Note that the parent scope is not always needed. These two blocks do
+exactly the same thing:
+</p><pre>
+.for site.section
+.   for page
+.   endfor
+.endfor
+</pre><p>and:
+</p><pre>
+.for site.section
+.   for section.page
+.   endfor
+.endfor
+</pre><p>But the first form is simpler and I recommend you drop explicit parent
+scope names when you are &quot;tunneling into&quot; the XML data tree.
+</p><p>Near the end of the template you see this construction:
+</p><pre>
+.for content
+$(content.string ())
+.endfor
+</pre><p>What is going on here? The answer is, we're grabbing the whole &lt;content&gt;
+block, including all the XML it contains, as a single string.
+Conveniently, XHTML is also XML, so we can read the XHTML content block
+as part of our XML data file. As a bonus, GSL will also validate it and
+tell you if there are errors, such as missing or malformed tags.
+</p><p>The scope string() function returns a string that holds the XML value of
+the specified entity. For the index page, it returns this value (as a
+single string):
+</p><p>&lt;content&gt;&lt;h3&gt;Close to you&lt;/h3&gt;&lt;p&gt;We're just around the corner, if you live
+near by.&lt;/p&gt;&lt;h3&gt;Always open&lt;/h3&gt;&lt;p&gt;And if we're closed, just come back
+tomorrow.&lt;/p&gt;&lt;h3&gt;Cheap and convenient&lt;/h3&gt;&lt;p&gt;Much cheaper and easier
+than growing your own vegetables and fruit.&lt;/p&gt;&lt;/content&gt;
+</p><p>When we enclose this in $( and ), it writes the string to the current
+output file. Thus we generate the body of the web page.
+</p><h1><a name="A7">7. Putting it All Together</a></h1><p>In our first draft we read the XML data from several files and we
+constructed a single tree with all the data we needed to generate code.
+This two-pass approach is the way I recommend you construct all GSL code
+generators:
+</p><ul><li>
+First, load all data into a single memory tree, denormalise and validate.</li><li>
+Second, generate code from that single memory tree.</li></ul><p>The final web site generator consists of three pieces, shown in listings
+6, 7, and 8:
+</p><p>Here is the revised web site generator.
+</p><pre>
+.# Since we run the script off the XML file, it starts in
+.# template mode.
+.template 0
+ ignorecase = 0
+ for section
+    for page
+        xml to section from &quot;$(page.name).xml&quot;
+        delete page
+    endfor
+ endfor
+ for section
+    for page
+        include &quot;template.gsl&quot;
+    endfor
+ endfor
+.endtemplate
+</pre><p>Here is the template for the HTML output.
+</p><pre>
+.#  This whole script runs in template mode.
+.#
+.template 1
+&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot;
+    &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;$(page.title)&lt;/title&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;default.css&quot; type=&quot;text/css&quot;/&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id=&quot;left_container&quot;&gt;
+    &lt;div id=&quot;logo_container&quot;&gt;
+      &lt;a href=&quot;index.html&quot;&gt;&lt;img id=&quot;logo&quot; src=&quot;$(page.name).jpg&quot;/&gt;&lt;/a&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;menu_container&quot;&gt;
+.for site.section
+      &lt;h3 class=&quot;menu_heading&quot;&gt;$(section.name)&lt;/h3&gt;
+      &lt;ul class=&quot;menu_item&quot;&gt;
+.   for page
+        &lt;li&gt;&lt;a class=&quot;menu_item&quot; href=&quot;$(page.name).html&quot;&gt;$(page.title)&lt;/a&gt;&lt;/li&gt;
+.   endfor
+      &lt;/ul&gt;
+.endfor
+      &lt;h3 class=&quot;menu_heading&quot;&gt;Copyright&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;copyright&quot;&gt;
+      &lt;p&gt;$(copyright)&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;h3 class=&quot;menu_heading&quot;&gt; &lt;/h3&gt;
+  &lt;/div&gt;
+  &lt;div id=&quot;right_container&quot;&gt;
+    &lt;div id=&quot;title_container&quot;&gt;
+      &lt;h1 id=&quot;title&quot;&gt;$(page.title)&lt;/h1&gt;
+      &lt;h2 id=&quot;title&quot;&gt;$(page.subtitle)&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;content_container&quot;&gt;
+    &lt;!-- Page content --&gt;
+.for content
+    $(content.string ())
+.endfor
+    &lt;!-- End page content --&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+.endtemplate
+</pre><p>Here is the CSS file. This is not generated; I assume you'll copy and
+modify it for each web site, since it defines all the look and feel:
+</p><pre>
+/<b> Global defaults </b>/
+* {
+    margin: 0;
+    padding: 0;
+}
+BODY {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+}
+/<b> Left column container </b>/
+#left_container {
+    float: left;
+    width: 220px;
+    margin: 0;
+}
+/<b> Right column container </b>/
+#right_container {
+    margin-left: 220px;
+}
+/<b> Logo (left, top) container </b>/
+#logo_container {
+    height: 100px;
+}
+/<b> Logo itself </b>/
+#logo {
+    display: block;
+    padding: 6pt;
+    margin-left: auto;
+    margin-right: auto;
+}
+/<b> Menu (left, bottom) container </b>/
+#menu_container {
+    color: black;
+    background-color: #b9cdd8;
+}
+H3.menu_heading {
+    color: white;
+    background-color: #01415c;
+    font-size: 10pt;
+    line-height: 16pt;
+    font-variant: small-caps;
+    text-indent: 10pt;
+}
+UL.menu_item {
+    font-variant: normal;
+    list-style: none;
+    border-width: 0 0 1pt 0;
+    border-style: solid;
+    border-color: white;
+    line-height: 16pt;
+}
+UL.menu_item LI {
+    border-width: 1pt 0 0 0;
+    border-style: solid;
+    border-color: white;
+    text-indent: 15pt;
+    line-height: 15pt;
+}
+#title_container {
+    color: white;
+    background-color: #01415c;
+    height: 100px;
+    position: relative;
+}
+H1#title {
+    width: 80%;
+    position: absolute;
+    font-variant: small-caps;
+    margin-left: 20pt;
+    margin-top: 20pt;
+    font-size: 18pt;
+}
+H2#title {
+    width: 80%;
+    color: #b9cdd8;
+    position: absolute;
+    font-variant: small-caps;
+    text-align: right;
+    margin-top: 45pt;
+    margin-left: 20pt;
+    font-size: 12pt;
+    border-width: 1pt 0 0 0;
+    border-style: dashed;
+    border-color: #b9cdd8;
+}
+/<b> Content (right, bottom) container </b>/
+#content_container {
+    width: 80%;
+    margin: 20pt;
+}
+#content_container H1 {
+    margin-top: 12pt;
+    background-color: #b9cdd8;
+    font-size: 14pt;
+    font-variant: small-caps;
+    text-indent: 10pt;
+}
+#content_container H2 {
+    margin-top: 12pt;
+    font-variant: small-caps;
+    font-size: 12pt;
+    padding-left: 10pt;
+}
+#content_container H3 {
+    margin-top: 11pt;
+    font-variant: small-caps;
+    font-size: 11pt;
+    padding-left: 10pt;
+}
+#content_container H4 {
+    margin-top: 10pt;
+    font-variant: small-caps;
+    font-size: 10pt;
+    padding-left: 10pt;
+}
+#content_container UL {
+    margin: 1em;
+    margin-left: 2em;
+    margin-right: 2em;
+}
+#content_container LI {
+    margin-left: 2em;
+}
+#content_container P {
+    margin: 1em;
+    margin-left: 2em;
+    margin-right: 2em;
+}
+#content_container PRE {
+    background-color: #E0E0E0;
+    margin: 1em;
+    margin-left: 4em;
+    margin-right: 4em;
+}
+#content_container TABLE {
+    margin-left: 3em;
+}
+#content_container TD {
+    padding-left: 1em;
+}
+/<b> Disclaimer (bottom right, below content </b>/
+#copyright P {
+    font-size: 7pt;
+    background-color: #b9cdd8;
+    border-width: 1pt 1pt 1pt 1pt;
+    border-style: solid;
+    border-color: #b9cdd8;
+    margin: 0pt;
+    padding: 1em;
+    color: #01415c;
+}
+/<b> Links </b>/
+A:active {
+    text-decoration: none;
+    font-weight: bold;
+    color: #01415c;
+}
+A:link {
+    text-decoration: none;
+    font-weight: bold;
+    color: #01415c;
+}
+A:visited {
+    text-decoration: none;
+    font-weight: bold;
+    color: #01415c;
+}
+A[HREF]:hover {
+    background-color: #b9cdd8;
+    color: black;
+}
+A.menu_item:active {
+    text-decoration: none;
+    color: black;
+}
+A.menu_item:link {
+    text-decoration: none;
+    color: black;
+}
+A.menu_item:visited {
+    text-decoration: none;
+    color: black;
+}
+A.menu_item[HREF]:hover {
+    color: red;
+}
+A:link IMG, A:visited IMG {
+    border-style: none;
+}
+</pre><p>To build the final web site, make sure the site.xml specifies the
+correct script:
+</p><pre>
+&lt;site
+    copyright = &quot;Copyright &amp;#169; Local Grocer&quot;
+    script = &quot;<b>sitegen.gsl</b>&quot;
+    &gt;
+</pre><p>And then build the web site using the same command as previously:
+</p><pre>
+gsl site
+</pre><p>The HTML template and the CSS file are made for each other. Note that:
+</p><ul><li>
+The HTML template assumes that each page has an image file with the name of the page, and extension &quot;jpg&quot;.</li><li>
+The colors and layout of the pages is defined in the CSS stylesheet.</li><li>
+The menu is generated into each page.</li></ul><h1><a name="A8">8. Exercise for the Reader</a></h1><p>It's an interesting exercise to re-implement our code generator using
+other code generation tools. For example, if you're familiar with XSLT,
+try building the web site generator using that. You may find you need to
+cheat, for example putting the whole web site model into a single file.
+</p><h1><a name="A9">9. Extending the Model</a></h1><p>I've shown you how to design a simple model, and bring it to life using
+GSL. This web site generator is actually based on one that I use for
+some of my own web sites. You can extend this model in many directions,
+for instance:
+</p><ul><li>
+You can change the type of menu, using a JavaScript drop-down menu instead of static HTML links.</li><li>
+You can define your own modeling language for the HTML content.</li><li>
+You can add other concepts and idioms to the model, depending on what you need in your web site.</li></ul><p>But most of all, the point of this example is to teach you how to use
+GSL in your daily work. As you've seen, it's easy to create models, and
+it's easy to change them. This is the secret of code generation - you
+don't need to get it right the first time. Models are hard to get right.
+So go ahead and experiment, since GSL makes it cheap to change your
+mind.
+</p><h1><a name="A10">10. Conclusion</a></h1><p>In this article we defined a simple model for a web site, and we built a
+code generation toolset for that model. In our very simple case, the
+toolset consists of about 100 lines of GSL. Using that, we can turn
+fifty lines of modeling language into about three times that amount of
+perfect HTML.
+</p><p>In the next article in this series we'll design a much more
+sophisticated model using the XNF (XML Normal Form) modeling tool, which
+is a MOP tool that we use to build MOP tools. I'll go into more detail
+on different aspects of GSL's syntax and show you how to turn MOP theory
+into real practice on a medium-scale problem.
+</p></content>
+    <!-- End page content -->
+    </div>
+  </div>
+</body>
+</html>

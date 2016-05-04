@@ -1,0 +1,595 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+  <title>MOP: Introduction</title>
+  <link rel="stylesheet" href="default.css" type="text/css"/>
+  <link rel="stylesheet" type="text/css" href="niftyCorners.css" />
+  <link rel="stylesheet" type="text/css" href="niftyPrint.css" media="print" />
+  <script type="text/javascript" src="niftycube.js"></script>
+  <script type="text/javascript" src="layout.js"></script>
+</head>
+<body>
+  <div id="left_container">
+    <div id="logo_container">
+      <a href="index.html"><img id="logo" width="155" height="80" src="logo.png"/></a>
+    </div>
+    <div id="menu_container">
+      <div class="menu_section">
+        <h1 class="menu_title">Welcome</h1>
+          <p class="menu_item"><a href="index.html">iMatix MOP</a></p>
+          <p class="menu_curr"><a href="introduction.html">Introduction</a></p>
+          <p class="menu_item"><a href="beginning.html">Beginning</a></p>
+      </div>
+    </div>
+    <div id="copyright">
+      <copyright>
+    Layout and content copyright &copy; 2006 iMatix Corporation.
+    </copyright>
+    </div>
+  </div>
+
+  <div id="right_container">
+    <div id="title_container">
+      <h1 id="title">Introduction</h1>
+      <h2 id="title">Introduction to iMatix MOP</h2>
+    </div>
+    <div id="content_container">
+
+    <!-- Page content -->
+    <content><h1>Contents</h1><ol><li><a href="#A1">Introduction</a></li><li><a href="#A2">Becoming a Very Good Programmer</a></li><li><a href="#A3">Tools that Write Software</a></li><li><a href="#A4">Abstractions and Modeling Languages</a></li><li><a href="#A5">Leverage to Move Mountains</a></li><li><a href="#A6">Model-Oriented Programming</a></li><li><a href="#A7">Other Model-Driven Architectures</a></li><li><a href="#A8">Why Use MOP?</a></li><li><a href="#A9">A Rapid History of Code Generation</a></li><li><a href="#A10">Myths about Code Generation</a></li><li><a href="#A11">The Correctness of Generated Code</a></li><li><a href="#A12">Starting with GSL</a></li><li><a href="#A13">Templates and Scripts</a></li><li><a href="#A14">Conclusion</a></li></ol><h1><a name="A1">1. Introduction</a></h1><p>This is the first in a series of articles, aimed at the professional
+programmer. I'm going to attack a complex subject, something that few
+people know about. It's a new way of programming called &quot;model-oriented
+programming&quot;. I'm not going to ask you to throw out your programming
+languages or tools. MOP works as a layer on top of everything you know
+today. I am going to ask you to rethink what it means to &quot;write a
+program&quot;, and to see that most of the code you write could be better
+written by robots, meaning other programs. And I'm going to teach you
+how to design and make such robots.
+</p><p>MOP works for every kind of area you write code for. Whether you write
+games, Linux drivers, servers, applications, plug-ins, whether you use
+Java, C, Perl, Ruby, Python, Gnome or KDE... once you start to see the
+world as models you'll find yourself writing more code, faster, than you
+ever thought possible.
+</p><p>In this article you will learn what MOP is, and why we invented it. I'll
+also explain some of the underlying technologies.
+</p><p>Be warned. This might hurt a little. All I can promise is that if you
+learn to use MOP you will use for the rest of your life, and wonder how
+you ever worked without it.
+</p><h1><a name="A2">2. Becoming a Very Good Programmer</a></h1><p>My name is Pieter Hintjens, and I am a programmer. My team and I build
+infrastructure software - frameworks, middleware, servers, etc. I've
+learned a few things about software since I wrote my first small program
+in 1981 or so. First: if it's not impossible, it's not worth doing.
+Second: software design is about overcoming human limitations, not
+technical ones. Third: very few people can actually design good, useful,
+large-scale software systems, which for me is the goal of programming.
+</p><p>In my experience there are at least four main aspects to becoming a
+very good programmer:
+</p><ul><li>
+Never throw out anything that works until it is really worn out. This mainly means writing portable code.</li><li>
+Never solve the same problem more than once in parallel. This mainly means building tools.</li><li>
+Solve the same problem often in serial. This means being willing to throw out code and rewrite it when you find better ways.</li><li>
+Write code, write code, write code, until it is as natural as speaking.</li></ul><p>Of course you also need talent, opportunity, and guidance, but a focus
+on portability, obsessive tool building, and years of practice can turn
+talent into real skill.
+</p><h1><a name="A3">3. Tools that Write Software</a></h1><p>In this series of articles I'll focus on the second part, making tools.
+There are quite a few metaphors for software tools. For example, the
+Unix metaphor consists of tools as filters: read some data, do some
+work, produce some output. It's a simple model that lets you chain
+together tools. Linux has many tools that work as filters.
+</p><p>A more subtle but much more powerful metaphor is to build tools as
+languages. That is, when you come across a new class of problem, you
+create a new language that lets you express solutions to those problems
+in a simple and clear way.
+</p><p>Programming languages are one example of tools that work like this. Most
+programming languages have their strong and weak points, but basically
+they are all equivalent: they solve the general problem of
+&quot;programming&quot;, not specific problems like &quot;constructing a firewall&quot; or
+&quot;building a static web site&quot;.
+</p><p>Now consider HTML. This is a language that takes a different approach.
+You don't use HTML to write programs: you use it to define structured
+documents, and then you give these documents to programs that can do
+useful things with the definitions, like show them on a screen.
+</p><p>It's worth comparing HTML to a language like PostScript, also used to
+get documents looking pretty on paper or screen. PostScript is a
+programming language (a threaded stack-based interpreter descended from
+Forth, in fact). People have written, for example, web servers in
+PostScript. No writer or designer actually sits down and writes
+PostScript, though people did this before HTML existed.
+</p><p>I sometimes use a tool that turns HTML pages into PostScript documents.
+Now, as a writer, I can use HTML to write my documents and then push a
+button to turn this HTML into PostScript. What I am actually doing is
+converting a descriptive language into a programming language. A
+HTML-to-PostScript converter lets millions of non-technical people
+suddenly produce perfect programs at will. Millions of people who never
+think of themselves as &quot;programmers&quot; can write PostScript, via
+higher-level abstractions like HTML. And the PostScript programs they
+produce are much better than an average PostScript programmer can write
+in a reasonable time.
+</p><h1><a name="A4">4. Abstractions and Modeling Languages</a></h1><p>HTML is in fact a &quot;modeling language&quot;, a language used to describe some
+system or entity. Modeling languages are very interesting because they
+provide levels of abstraction that programming languages cannot even
+conceive of. Abstraction lets you define and use high-level concepts
+like, &quot;this is a document title&quot;, without having to specify what that
+actually means, on paper or on the screen. Abstraction relies on
+concepts that have enough meaning to be useful, without being too
+detailed. For example, &quot;the web&quot; is a useful abstraction for &quot;various
+URL formats, protocols for transferring such resources, clients and
+servers that implement such protocols, and collections of resources that
+are thus interconnected&quot;.
+</p><p>Abstraction is an important concept. It is one of the keys to solving
+complex problems. Let me give you another example of abstraction. We can
+build an application using a shell script that does each step. This is
+not abstract, it is a literal set of steps. A makefile is more abstract:
+it adds the abstractions of &quot;file type&quot; (based on extension) and
+&quot;target&quot; and specifies how we transform one type of file into another in
+order to build a specific target. There are more abstract descriptions
+of projects too. Each time we make a good abstraction - a simple view
+that hides complex details - we eliminate a layer of manual work.
+</p><p>Now imagine you could use modeling languages as a way of writing
+programs. Instead of writing Perl, or Java, or C++, or Ruby, you would
+describe some kind of model and then press a button. In fact this is not
+a new idea: I've worked with systems that have done this, more or less
+successfully, for twenty years.
+</p><p>Historically, computer scientists have tried to make programming
+languages more powerful by adding functionality and by adding
+programming abstractions. The underlying assumption is that since
+programming languages are general purpose, they must be the best tools
+for building software. Adding general purpose programming capacity gets
+more and more complex as we reach for more abstraction. Thus we get
+languages that are so complex that to master them is a full career.
+</p><p>This is, I believe, a mistaken approach. Complexity is difficult to
+control, and complex languages (like Perl and C++) have a reputation for
+producing complex and hard-to-maintain code. As a programmer, I have
+quite a problem investing so much in any single language.
+</p><p>The trick that I've found (since I'm lazy and don't have the patience to
+read 500-page guides to programming languages) is to create simple
+abstractions - models - that solve useful problems, and to use these
+models to generate code, just as we produce documents on screen and on
+paper by generating code from abstractions like HTML.
+</p><p>For naive users, a model is a visual thing, but for us programmers, a
+textual modeling language is much more useful. There exist many modeling
+languages, and as I said, it is not a new concept. For example, in 1991
+I wrote a tool, Libero, that turns finite state machine models into
+code. Libero was extremely useful, and it is still part of our toolbox
+today. What it does is take a state machine model (a text file), and
+turn that into code in arbitrary languages (we made code generators for
+twenty or so programming languages). State machines are a very useful
+model for writing programs, but that's a different story.
+</p><p>Libero took me about three months to build, time that I've won back on
+many projects. In a general sense, Libero is like the HTML-to-PostScript
+convertor. It takes a definition written in an abstract modeling
+language and turns that into code that makes the model come to life. The
+generated code is always perfect, and as invisible as the PostScript
+code.
+</p><h1><a name="A5">5. Leverage to Move Mountains</a></h1><p>I'm coming to the point of this article. This kind of model-to-code tool
+is very useful. It gives you leverage. That is, the ability to move
+mountains. It is much easier, faster, cheaper to change an abstract
+model than it is to change the code that makes it work. Look again at a
+PostScript program and now imagine the work needed to change a H1 item
+to H2.
+</p><p>Good models let you work 10 to 100 times faster than any programming
+language. As long as you stick to the problems the model was meant for,
+there is really no downside, no reason to prefer PostScript over HTML
+for writing texts.
+</p><p>I've said that part of being a world-class programmer is the ability to
+make useful tools. But how do you, as a programmer, make a tool that
+compiles a modeling language into code? You need to solve four main
+problems:
+</p><ul><li>
+You need to learn, borrow, adapt, or invent useful models. This is not easy. Good models like finite state machines and hierarchical documents took many clever people many years to invent and refine.</li><li>
+You need to define a language that lets people make such models. Again, getting this right is delicate. There are hundreds of ways to write state machines, just as there were hundreds of document markup languages before HTML, most being far too complex and thus useless.</li><li>
+You need to build a parser that can read this language, check it, turn it into internal structures, optimise those structures, etc. Needless to say, writing parsers is not easy, there exist whole sets of tools just to solve this problem.</li><li>
+You need to build a code generator that can take these internal structures and spit out the final code in whatever target languages you want to produce. Writing code generators is a black art. There are almost no books on the subject, no standard technologies.</li></ul><p>If you've ever studied how compilers work, it's much the same problem.
+What I'm talking about is building compilers for modeling languages.
+</p><h1><a name="A6">6. Model-Oriented Programming</a></h1><p>Modeling languages and programming languages can overlap. For example,
+objects are a type of model. The biggest problem with putting models
+into the programming language is that for real, large problems, we need
+many different types of model, and these cannot be expressed a single
+language. Languages that attempt this become too complex to work with.
+Imagine attempting to describe a hierarchical document using objects,
+and compare this to writing some HTML by hand.
+</p><p>I'll explain with cases taken from a real project. My team is building a
+large middleware server (this is a new open source product that we're
+going to release in 2006). We're using C as the target language for
+portability and performance, but we actually design the software as lots
+of high-level models. Each modeling language is part of a code
+generation process that produces real code. We have modeling languages
+for:
+</p><ul><li>
+Classes to encapsulating functions.</li><li>
+Finite state machines for building protocol handlers.</li><li>
+Project definitions for building and packaging sources.</li><li>
+Grammar definitions for building parsers and code generators.</li><li>
+Grammar definitions for communication protocols.</li><li>
+Test scripting language.</li></ul><p>The key to making these different modeling tools is cost. If it is cheap
+to design, test, and use modeling languages, we can cut the research and
+learning time dramatically.
+</p><p>Since I wrote Libero almost fifteen years ago, I've been working with
+Jonathan Schultz to make better technologies for building modeling
+languages and the code generators that bring them to life. We finished
+the last of the main tools last year, and we now have technology that
+lets us design and deploy new modeling languages in a matter of weeks.
+The process is so fast, and so efficient, that we are able to generate
+almost 100% of the middleware server, a half-million lines of C code,
+from about sixty thousand lines of modeling code.
+</p><p>The downside is that anyone wanting to understand the code has to learn
+the five or six models we use. The upside is that they only have sixty
+thousand lines of code to read, not half a million.
+</p><p>Let me take you through the main parts of our architecture, which we
+call &quot;Model-Oriented Programming&quot;:
+</p><p>The basic technology is GSL, a programming language that we use to build
+code generators. Yes, you can write a web server in GSL, but that would
+be pointless. GSL is aimed very much at spitting out huge volumes of
+perfect code. GSL is an interpreter, it runs as a command, just like
+Perl or another scripting language.
+</p><p>The second main technology is XML, which we did not invent of course,
+but which we happily adopted in 1997, having spent several years
+designing our own very similar meta-languages. We use XML in a
+simplistic way, to model data, not to do any kind of complex document
+manipulation. No stylesheets or namespaces, thus.
+</p><p>The third main technology is XNF, which is a tool for building
+model-driven code generators. We start to get meta here. XNF (for &quot;XML
+Normal Form&quot;) lets you define the grammar of an XML-based modeling
+language. From that grammar XNF produces parsers and a framework into
+which you plug hand-written back-end code generators. XNF is a modeling
+language for code generators. XNF is the basis for all our complex
+modeling tools, including XNF itself.
+</p><p>These tools are somewhat unusual. The techniques of code generation are
+not well understood, and no teams have ever pushed these techniques as
+far as we have. I don't promise that it will be easy to understand -
+abstraction can be hard to grasp - but once you &quot;get it&quot;, you'll be able
+to produce tools that solve your programming problems ten times faster
+than using any other technique.
+</p><h1><a name="A7">7. Other Model-Driven Architectures</a></h1><p>Using models as the basis for designing applications is not new. I've
+worked with many tools that promised &quot;an end to programming&quot; through the
+magic of point and click modeling. Some of these - such as UML
+(Universal Modeling Language) - have become industry standards. In my
+experience, these tools do not work except as expensive and slow
+documentation tools.
+</p><p>Perhaps my opinion of classic modeling tools such as UML have been
+influenced by watching them being abused on large projects. The typical
+scenario is that a big team of analysts work for a year to produce a
+&quot;model&quot;, which is then thrown out as a second team of developers write
+the actual code.
+</p><p>The fundamental problem is that no single modeling language can cover
+the variety needed to solve real world programming challenges. Just
+imagine someone suggesting that UML could be used to write a Linux
+device driver, or a high-performance game. That's a joke! Yet my team
+uses models to design and build very technical, very high-performance
+software. You just need the right models.
+</p><p>Classic MDA tools attempt to do everything with a single modeling
+language. This is doomed to failure except within a very narrow niche of
+work. Indeed, it is more expensive to &quot;not write code&quot; using a language
+like UML than to simply write the code in Java. Just as a single
+programming language cannot cover all abstractions, neither can a single
+modeling language.
+</p><p>To succeed with a model-driven architecture, you need a way to build,
+test, and improve a variety of different models, each solving one
+specific domain. What you need is not a single, do-it-all modeling
+language, but a technology that lets you build arbitrary modeling
+languages.
+</p><p>And this is iMatix MOP.
+</p><h1><a name="A8">8. Why Use MOP?</a></h1><p>Despite the trendy name, MOP is really about solving real problems in
+the most efficient possible way. Let's look at the main advantages my
+team gets from using MOP:
+</p><p>We have to write much less code to get the same results. I call this
+&quot;leverage&quot;. One line of modeling code can be worth ten or twenty lines
+of a programming language. Using less code has many knock-on advantages:
+we work faster, better, and cheaper.
+</p><p>We get high-level models of important aspects of the system. All systems
+have key models, but they are usually hidden in the code and impossible
+to verify, formalise, or exploit fully. When the model is turned into a
+concrete language, it makes the software much better.
+</p><p>We can produce extremely high-quality code. This is an effect of doing
+code generation: the generated code we produce has no errors, and is as
+good as a human programmer can write, consistently.
+</p><p>We write less internal documentation, and often none at all, since each
+model is documentation.
+</p><p>We are immune to technological changes since MOP is entirely abstract
+from specific programming languages, operating systems, and trends. It
+can take years to develop really good models but they work for decades.
+</p><p>There are also disadvantages:
+</p><p>People do not rapidly understand or trust the approach. I've been
+accused of over-investing in tools (sometimes more than half the cost of
+a project goes into modeling tools). The look on the client's face when
+we deliver version after version of impeccable software in impossibly
+short deadlines is worth it.
+</p><p>Programmers do not rapidly understand the models. It takes time to learn
+each one, sometimes weeks or months.
+</p><p>So, MOP is best used in small, skilled, and long-lasting teams (like
+iMatix) that solve highly complex and critical problems. Before you can
+use MOP in a project you need complete confidence of the people paying
+for the work. If you're writing software for yourself, it's easy. If
+you're writing software for other people, this can be a hard sell. MOP
+can also be used to give structure to larger development teams, but it
+is a lot of work to train mediocre people to use sophisticated models.
+</p><p>The sad thing in the software business is that few people actually
+understand that better techniques save money. Still, there is no
+pleasure, as a programmer, in writing bad code using bad tools. So,
+learn to use MOP, then convince your bosses that they will save money,
+right away, by using this. Everyone wins.
+</p><h1><a name="A9">9. A Rapid History of Code Generation</a></h1><p>To understand and use MOP you need to appreciate code generation as a
+technology. I first started writing code generators in 1985, and I've
+seen these tools evolve through several stages (in my own work, but also
+in the general domain):
+</p><p>Hard-coded code generators that take some meta-data (a model) and output
+code using print statements. This is the most common, and the most
+limited form. Typical examples are all the classic &quot;code generators&quot;
+built into products.
+</p><p>Template-driven code generators that use symbolic insertion to inject
+meta-data into a template. This technology makes it much easier to write
+new ad-hoc templates. Typical examples are any technology that produces
+dynamic web page.
+</p><p>Scripted code generators that use a high-level language to manipulate
+meta-data and then inject it into templates. This technology makes it
+much easier to write new ad-hoc code generators. Typical examples are
+XSLT, GSL and some other scripted code generation languages.
+</p><p>Meta code generators that build code generators. This technology makes
+it possible to construct code generators for very complex modeling
+languages. The only examples we know are iMatix tools such as XNF and
+ASL.
+</p><p>Our first versions of GSL were born in 1995. We moved onto XML in 1997.
+The problem of writing the code generator scripting language (GSL) is
+largely solved, and at iMatix we don't consider this a priority task. At
+some point we want to rewrite GSL to be a lot faster, but what interests
+us now is how far we can push MOP to solve new programming challenges.
+</p><h1><a name="A10">10. Myths about Code Generation</a></h1><p>Code generators are often seen as a technological burden, rather than
+useful tools. I suspect that this is because primitive code generators
+(which covers most code generators) are so painful to use. Some of the
+common myths about code generation are:
+</p><p>Code generators only work for simplistic cases. This is often true, but
+only because most code generators are simplistic.
+</p><p>Generated code is unreadable, and generated code is low quality. This is
+often true because their authors focus on the application-specific
+problem, rather than on making the template easy to modify and improve.
+In a template-based code generator the code can be as good as or better
+than hand-written code.
+</p><p>Code generators are expensive to make. This is typical of hard-coded
+code generators where the slightest change to the template means
+modifying, compiling, linking, and distributing a new release of the
+code generator.
+</p><p>Code generators are too much effort to use. This says more about tool
+designers than about the problems that the tools solve.
+</p><p>Code generators are complex. This is true: all abstractions are
+internally complex - look at the work required to write a good web
+browser or web server.
+</p><p>GSL solves most of these problems, and even a beginner can make useful
+code generators for interfaces, database management, XNF solves the last
+problem - it applies MOP to MOP itself, letting us make sophisticated
+code generators much more rapidly than by hand.
+</p><h1><a name="A11">11. The Correctness of Generated Code</a></h1><p>When you use a tool that produces large amounts of code for you, you
+will naturally ask, &quot;how do I know the code is correct&quot;. You need to be
+able to trust your tools.
+</p><p>A code generator, luckily, is not random. It is like a simple compiler:
+take high-level construct, translate into target code. If there is a bug
+in this translation step, you will get target code that has bugs.
+</p><p>Luckily, it's easier, not harder, to get correct code from a machine
+than by hand. I'll explain how we do this:
+</p><p>Overall, we are quite strict about how we build our code generators.
+That makes bugs in the code generators rarer, and easier to find.
+</p><p>When we start a new code generator, we build it gradually, and of course
+we inspect the code that it produces as we develop it.
+</p><p>As we make the code generator more sophisticated we build a regression
+test suite that lets us catch any new errors in old code very rapidly.
+</p><p>In any programming environment, the key to producing good code is to
+test heavily, and to use appropriate automation, i.e. tools. When we say
+the &quot;correctness of generated code&quot;, we really mean, &quot;how to avoid bugs
+in the code generator&quot;.
+</p><p>Since we use the MOP approach to build the code generators themselves,
+we get very good code generators, cheaply. It is the same concept as a
+&quot;self-hosting&quot; compiler. On many projects where we've used MOP, I'm able
+to deliver hundreds of thousands of lines of code, and say, with
+confidence, &quot;there is not a single bug in this code&quot;.
+</p><h1><a name="A12">12. Starting with GSL</a></h1><p>GSL, XNF, and our other tools are open source. You can download them
+from http://www.imatix.net/pub. If you want to try the examples that
+follow, you should download the Base and GSL/4 packages and build them.
+</p><p>Our first step is to make a &quot;hello world&quot; program in GSL. It's quite
+simple. Make a file called hello.gsl that contains one line:
+</p><pre>
+echo &quot;hello world&quot;
+</pre><p>To run this, use the following command:
+</p><pre>
+gsl hello
+</pre><p>GSL is a simple language and you'll not have any difficulty
+understanding its syntax, except in a few places where it does
+specialised work. It will take you a little longer to understand what
+you can do with GSL, but that is the real point of these articles. GSL
+is not as rich as other scripting languages. It is a code generator
+scripting language, not a programming tool. It lacks some control
+structures, and it runs a little slowly.
+</p><p>Initially, GSL looks like any other scripting language. I can write
+little scripts like this:
+</p><pre>
+amount = 1000
+year = 2006
+while year &lt; 2026
+    amount = amount * 1.05
+    year = year + 1
+endwhile
+echo amount
+</pre><p>Which calculates the value of my savings account if I were to leave it
+untouched for twenty years, and the interest rate were steady at five
+percent. Note these syntax aspects:
+</p><ul><li>
+variable = expression - Assign a value to a variable</li><li>
+while condition... endwhile - Repeat a block while the condition is true</li></ul><p>To run the above program, assuming it was saved in a file called
+interest.gsl, I type this command:
+</p><pre>
+gsl interest
+</pre><p>This executes the script and tells me that if I am really patient, I'll
+be rich one day. Now I'm going to change this little program to make the
+same kind of calculation for different amounts, rates, and years. Where
+do I put these different terms and rates? The answer is, in an XML file.
+The file is called deposits.xml:
+</p><pre>
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;deposits script = &quot;interest.gsl&quot; &gt;
+    &lt;deposit amount = &quot;1000000&quot; rate = &quot;5&quot; years = &quot;20&quot; /&gt;
+    &lt;deposit amount = &quot;500000&quot; rate = &quot;4&quot; years = &quot;10&quot; /&gt;
+    &lt;deposit amount = &quot;2500000&quot; rate = &quot;6&quot; years = &quot;15&quot; /&gt;
+&lt;/deposits&gt;
+</pre><p>We change our script to give the result below.
+</p><pre>
+.template 0
+ for deposit
+    year = 1
+    accumulated = amount
+    while year &lt; years
+        accumulated = accumulated * (rate / 100 + 1)
+        year = year + 1
+    endwhile
+    echo &quot;Original amount:&quot; + amount + &quot; becomes: &quot; + accumulated
+ endfor
+.endtemplate
+</pre><p>Note these syntax aspects:
+</p><ul><li>
+.template 0 - Start script (non-template) block * for childname - Repeat block for all instances of child item called childname</li></ul><p>We will run the new interest calculation script using this command:
+</p><pre>
+gsl deposits.xml
+</pre><p>Note the change of command syntax. We first ran the GSL script. Now
+we're running the XML file. This is one of GSL's features - you can run
+XML files as if they were scripts. It's the 'script =' setting that does
+the trick, working much like the hash-bang #! command in Linux.
+</p><p>Any GSL script, no matter how simple, works with an XML document loaded
+into GSL's memory as a data tree. In our first interest.gsl script, the
+data tree contains just this:
+</p><pre>
+&lt;root script = &quot;interest&quot; /&gt;
+</pre><p>GSL automatically creates this data tree when we ask it to execute a GSL
+script.
+</p><p>If, on the other hand, we ask GSL to execute an XML file, it loads this
+XML file into its data tree. Assuming we also asked for it, it will then
+execute a GSL script against that XML tree. Technically speaking, GSL
+searches the root item - which can have any name - for an attribute
+called &quot;script&quot;. We can put attributes into the root item in several
+ways. One is to simply add them to the XML file, as we did. The other is
+to place them on the command line, like this:
+</p><pre>
+gsl -script:interest deposits.xml
+</pre><p>All variables that we define and use are stored in the data tree,
+somewhere. This is the only data structure that GSL scripts work with,
+and it can get very complex. For many people, understanding this
+complexity is the most difficult thing about using GSL - hierarchies of
+data are one of those things most human brains do not handle very well.
+We use abstractions like XNF to make this simpler, but that is something
+I'll discuss later.
+</p><h1><a name="A13">13. Templates and Scripts</a></h1><p>GSL uses the term &quot;template&quot; to describe text that is output as
+generated code. GSL works in two modes - script mode, and template mode.
+When you execute a GSL script directly, as we did in the first example,
+GSL starts in script mode. When you execute a GSL script indirectly,
+through an XML file, as we did in the second example, GSL starts in
+template mode. Try removing the .template 0 and .endtemplate lines and
+you'll see what I mean. The script just gets copied to the output stream
+</p><ul><li>
+the console, by default.</li></ul><p>In template mode, GSL commands start with a dot in the first column. In
+script mode, all lines are assumed to be GSL commands unless they start
+with &quot;&gt;&quot; (output) in the first column, in which case they are handled
+as template lines.
+</p><p>Script mode is useful when you are doing a lot of GSL scripting work.
+Often you need to prepare data, check the XML tree, and so on, before
+you can start to generate code. Template mode is useful when you want to
+output a lot of data, or actually want to generate code.
+</p><p>You can mix GSL commands and template code by putting a dot at the start
+of lines with GSL commands. Like this:
+</p><pre>
+.while year &lt; years
+.   accumulated = accumulated * (rate / 100 + 1)
+.   year = year + 1
+.endwhile
+</pre><p>I'm now going to generate a little HTML report of how the different
+calculations. The listing below shows the third version of interest.gsl:
+</p><pre>
+.output &quot;deposits.html&quot;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;So You Want To Be A Millionaire?&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;So You Want To Be A Millionaire?&lt;/h1&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;th&gt;Original amount&lt;/th&gt;
+&lt;th&gt;Interest rate&lt;/th&gt;
+&lt;th&gt;Term, years&lt;/th&gt;
+&lt;th&gt;Final amount&lt;/th&gt;
+&lt;/tr&gt;
+.for deposit
+.   year = 1
+.   accumulated = amount
+.   while year &lt; years
+.       accumulated = accumulated * (rate / 100 + 1)
+.       year = year + 1
+.   endwhile
+&lt;tr&gt;&lt;td&gt;$(amount)&lt;/td&gt;
+&lt;td&gt;$(rate)%&lt;/td&gt;
+&lt;td&gt;$(years)&lt;/td&gt;
+&lt;td&gt;$(accumulated)&lt;/td&gt;
+&lt;/tr&gt;
+.endfor
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre><p>Note these syntax aspects:
+</p><ul><li>
+output expression - Start sending output to the filename specified * $(name) - Insert value of attribute in output text</li></ul><p>To produce the HTML report run the same command as before:
+</p><pre>
+gsl deposits.xml
+</pre><p>And then load deposits.html into your browser to see what it looks like.
+</p><p>If you're a web developer with any experience, you will see right away
+what's happening. We're generating a web page dynamically, just like a
+hundred other web tools. But there are significant differences:
+</p><p>Unlike a dynamic web page, here we explicitly specify the output file
+ourselves, using the &quot;output&quot; command. We can output zero, one, or a
+hundred different files if we want to.
+</p><p>We're working off a data tree that can be as complex as we want. Each
+&quot;for&quot; loop opens a new scope, acting on a set of child entities. A
+dynamic web page works off some flat data, coming from the browser or a
+database. You can make web pages that work on a hierarchical data set,
+but it's extra work.
+</p><p>GSL lets you load and navigate XML data so easily that you don't even
+realize you're busy. The combination of an explicit script language like
+GSL plus a hierarchical XML data tree works well.
+</p><h1><a name="A14">14. Conclusion</a></h1><p>A professional programmer always looks for ways of producing better
+code, at a lower cost. We have seen evolution in programming languages
+but these tend to get very complex as they try to solve wide types of
+problems using high-level constructs. Some of these languages take years
+to learn properly.
+</p><p>The author and his colleagues have developed an alternative way of
+writing better code, which they call &quot;Model-Oriented Programming&quot;, or
+MOP. MOP turns high-level models into code, in the same way as an
+HTML-to-PostScript converter produces code.
+</p><p>iMatix provides tools that let you construct your own MOP models and the
+code generators that make them work. Using MOP in a project can give
+significant benefits. The author's team is currently building an open
+source messaging server using MOP techniques. The 500,000 lines of C in
+the server are produced from 60,000 lines of high-level modeling
+languages, including state machines, protocol grammars, class
+definitions, and project definitions. The iMatix MOP tools are all
+available as open source from http://www.imatix.net/pub.
+</p><p>iMatix MOP is based on code generation techniques that we have been
+using and developing for twenty years. The core technologies are GSL, a
+code generator scripting language, and XML, which is the basis for the
+modeling languages that we use. A single MOP definition produces code,
+documentation, test cases, and so on.
+</p><p>MOP development can produce spectacular results. We have benchmarked our
+development costs against other highly-skilled teams and found a
+difference of 5 times and more. MOP code is much shorter than
+hand-written code, so costs less to maintain. While it is near
+impossible to hand-write huge applications without any bugs, very large
+MOP programs can be bug-free before they have come out of beta testing.
+This is partly because MOP code is easier to write correctly, but also
+because we can generate test cases automatically.
+</p><p>In our world, XML becomes a model-oriented programming language that
+achieves a new level of expression - a true fifth generation language -
+without becoming particularly complex, slow, or narrow. Unlike many of
+the approaches taken to overcome the cost of software engineering, we
+offer an approach that is easy to learn, based on simple concepts, and
+yet totally plastic, covering any software domain, language, and
+operating system one can imagine.
+</p><p>This is a radical evolution - possibly a revolution - for software
+engineering.
+</p></content>
+    <!-- End page content -->
+    </div>
+  </div>
+</body>
+</html>
